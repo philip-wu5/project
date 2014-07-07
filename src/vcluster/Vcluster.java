@@ -13,7 +13,7 @@ public class Vcluster {
 	public static int SERVER_PORT1;
 	public static int SERVER_PORT2;
 	public static String configFile = "vcluster.conf";
-	public static enum uiType {CMDLINE, REMOTECLIENT, WEBUI,LOADBALANCER};	
+	public static enum uiType {CMDLINE, REMOTECLIENT, WEBUI, LOADBALANCER};	
 	public static uiType currUI;
 	public static String xmlFile;
 	

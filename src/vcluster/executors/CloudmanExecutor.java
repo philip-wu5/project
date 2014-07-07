@@ -150,10 +150,11 @@ public class CloudmanExecutor {
 		// TODO Auto-generated method stub
 		StringBuffer str = new StringBuffer();
 		if(cmd.getParaset().size()==0){
+			System.out.println("[ERROR : ] Expect a Cloud name!");
 			return str.append("[ERROR : ] Expect a Cloud name!").toString();
 		}
 		Cloud c = CloudManager.getCloudList().get(cmd.getParaset().get(0));
-		if(c.getHostList().size()==0||c.getHostList()==null)return "";
+		if(c.getHostList()==null||c.getHostList().size()==0)return "";
 		String tId=  String.format("%-8s","ID");
 		String tName=  String.format("%-12s", "Name");
 		String tMax = String.format("%-6s", "Max");

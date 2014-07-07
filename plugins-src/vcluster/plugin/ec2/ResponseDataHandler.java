@@ -1,3 +1,9 @@
+/*
+ * Hao: Add the function to create tags for each virtual machine instances for vcluster. 
+ *      When describe VM instances, only those taged with vcluster will be listed.
+ *      Fixed bug for "stopped" VM status.
+ */
+
 package vcluster.plugin.ec2;
 
 import java.io.BufferedReader;
@@ -59,6 +65,8 @@ public class ResponseDataHandler {
 		case START_INSTANCE:
 			vmList =  operateResponse(doc);
 			break;
+		case CREATE_TAG:
+			createTagResponse(doc);
 		default:
 			break;		
 		}
@@ -183,7 +191,7 @@ public class ResponseDataHandler {
 				vm.setHostname("host1");
 				if(instanceState.equalsIgnoreCase("running")){
 					vm.setState(VMState.RUNNING);
-				}else if(instanceState.equalsIgnoreCase("stoped")){
+				}else if(instanceState.equalsIgnoreCase("stopped")){
 					vm.setState(VMState.STOP);
 				}else if(instanceState.equalsIgnoreCase("Pending")){
 					vm.setState(VMState.PENDING);
@@ -205,6 +213,17 @@ public class ResponseDataHandler {
 
 	}
 
+	private static void createTagResponse(Document doc) throws Exception
+	{
+		Element returnEle = findFirstMatchedNode(doc, "return");
+		NodeList nl = returnEle.getChildNodes();
+		String textVal = nl.item(0).getNodeValue();
+		
+		if (!textVal.equalsIgnoreCase("true"))
+		{
+			System.out.println("[Error] : cannot tag all the VM instances!");
+		}
+	}
 	private static void describeImageResponse(Document doc) throws Exception 
 	{
 		

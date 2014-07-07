@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 /**
  *This is a command enum for ec2 interface 
+ *Hao: add a command for create tag for VM instances 
  */
 public enum Command {
 
@@ -15,6 +16,7 @@ public enum Command {
 	DESCRIBE_INSTANCE ("DescribeInstances, describeinstance, din, dins, descinst, descins"),
 	TERMINATE_INSTANCE ("TerminateInstances, terminateinstance, terminate, ti, kill, killins"),
 	DESCRIBE_IMAGE ("DescribeImages, describeimage, dim, dimg, descimg"),
+	CREATE_TAG ("CreateTage, createtag"),
 	
 	NOT_DEFINED ("not_defined");
 

@@ -21,7 +21,7 @@ public class VclusterClient {
 	    String userCmd = "";
 
 	    /* prompt */
-	    System.out.print("vcluter@"+"KISTI"+"> ");
+	    System.out.print("vcluter@"+"FERMICLOUD"+"> ");
 		
 	    InputStreamReader input = new InputStreamReader(System.in);
 	    BufferedReader reader = new BufferedReader(input);
@@ -44,8 +44,9 @@ public class VclusterClient {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		try {		    
-			VclusterClient vc = new VclusterClient();			
-			RemoteInterface ri = (RemoteInterface) Naming.lookup("rmi://"+serverAddr+":"+serverPort+"/command");
+			VclusterClient vc = new VclusterClient();	
+			String cm="rmi://"+serverAddr+":"+serverPort+"/command";
+			RemoteInterface ri = (RemoteInterface) Naming.lookup(cm);
 			String more = "";
 			do {
 				more = vc.promptGen();
@@ -58,7 +59,7 @@ public class VclusterClient {
 			
 		} catch (MalformedURLException | RemoteException | NotBoundException e) {
 			// TODO Auto-generated catch block
-			
+			e.printStackTrace();
 			System.out.println(" Connection refused to server");
 
 		}
@@ -66,7 +67,7 @@ public class VclusterClient {
 
 	}
 	
-	private static String serverAddr = "150.183.233.59";
+	private static String serverAddr = "fermicloudpp005.fnal.gov";
 	private static String serverPort = "1099";
 
 }

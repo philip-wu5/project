@@ -6,6 +6,7 @@ import vcluster.managers.CloudManager;
 
 /**
  * A class that presents a host of cloud. 
+ * Update with some one host features -- Hao
  */
 public class Host {
 	private TreeMap<String,Vm> vmList;
@@ -17,10 +18,35 @@ public class Host {
 	private String name;
 	private String ipmiID;
 	private int powerStat = 1;
+	//host total cpu
+	private int tcpu;
+		
+	//host free cpu
+	private int fcpu;
 	
+	//host allocated cpu
+	private int acpu;
 	
+	//host total memory
+	private double tmem;
+		
+	//host free memory
+	private double fmem;
+		
+	//host allocated memory
+	private double amem;
+		
+	//host status
+	private HostStat stat;
 	
+	//host current cpu utilization
+	private double cpuUtil;
 	
+	//host current io utilization
+	private double ioUtil;
+	
+	//enumeration of the host states
+	public static enum HostStat{ON, OFF, ERR, UNKNOW};
 	
 	public String getName() {
 		return name;
@@ -183,5 +209,69 @@ public class Host {
 		this.id = id;
 	}
 	
+	//Get and set the total number of cpus
+	public  int getTCPU()
+	{return tcpu;}
+	public void setTCPU(int n)
+	{tcpu=n;}
+	
+	//Get and set the free number of cpus
+	public  int getFCPU()
+	{return fcpu;}
+	public void setFCPU(int n)
+	{fcpu=n;}
+	
+	//Get and set the allocated number of cpus
+	public  int getACPU()
+	{return acpu;}
+	public void setACPU(int n)
+	{acpu=n;}
+	
+	//Get and set the total memory
+	public  double getTMEM()
+	{return tmem;}
+	public void setTMEM(double n)
+	{tmem=n;}
+	
+	//Get and set the free memory
+	public  double getFMEM()
+	{return fmem;}
+	public void setFMEM(double n)
+	{fmem=n;}
+	
+	//Get and set the allocated memory
+	public  double getAMEM()
+	{return amem;}
+	public void setAMEM(double n)
+	{amem=n;}
+	
+	//Get and set the host states
+	public  HostStat getStat()
+	{return stat;}
+	public void setStat(HostStat s)
+	{stat=s;}
+	
+	public void setStat(String s)
+	{
+		if(s.equalsIgnoreCase("on"))
+			stat = HostStat.ON;
+		else if(s.equalsIgnoreCase("off"))
+			stat = HostStat.OFF;
+		else 
+			stat = HostStat.ERR;
+	}
+	
+	//Get and set the current cpu utilization on host
+	public double getCPUUtil()
+	{return cpuUtil;}
+	public void setCPUUtil(double u)
+	{cpuUtil= u;}
+	
+	//Get and set the current io utilization on host
+	
+	public double getIOUtil()
+	{return ioUtil;}
+	public void setIOUtil(double u)
+	{ioUtil=u;}
 
 }

@@ -24,7 +24,7 @@ public class ProxyOpennebula implements CloudInterface {
 	    String cmdLine = "";
 	    ProxyOpennebula proxyOpennebula = new ProxyOpennebula();
 	    //proxyOpennebula.RegisterCloud(new ArrayList<String>());
-	    proxyOpennebula.addr="150.183.233.60";
+	    proxyOpennebula.addr="fermicloudpp-ui.fnal.gov";
 	    proxyOpennebula.port=9734;
 	    File f = new File("e:"+File.separator+"vmlist.txt");
 	    /* prompt */

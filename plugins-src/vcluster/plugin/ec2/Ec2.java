@@ -1,5 +1,11 @@
 package vcluster.plugin.ec2;
 
+/*
+ * Hao: Add: createTag function which create a User-UserName tag for VM instances.
+ *      Modified: create VM function, when new VM instances are being created, they are tagged with vcluster 
+ */
+
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -138,7 +144,7 @@ public class Ec2 implements CloudInterface{
 		qi.putValue("MinCount", "1");
 		qi.putValue("MaxCount", Integer.toString(maxCount));
 		qi.putValue("InstanceType", cloud.getInstaceType());
-
+        qi.putValue("SecurityGroup.1", cloud.getSecurityGroup());
 		/* fill the default values */
         qi.putValue("Timestamp", timestamp);
 		qi.putValue("Version", cloud.getVersion());
@@ -160,9 +166,42 @@ public class Ec2 implements CloudInterface{
 		}
 		//System.out.println(cloud.getEndPoint());
 	
-		return executeQuery(Command.RUN_INSTANCE, cloud.getEndPoint(), query);		
+		ArrayList<Vm> vmlist =  executeQuery(Command.RUN_INSTANCE, cloud.getEndPoint(), query);	
+		createTag(vmlist);
+		return vmlist;
 	}
+    
+	
+	public void createTag(ArrayList<Vm> vms)
+    {
+    	QueryInfo qi = new QueryInfo();
+		qi.putValue("Action", "CreateTags");
+		String timestamp = Util.getTimestampFromLocalTime(Calendar.getInstance().getTime());
+		String resource = "ResourceId.";
+		for(int i=1; i<=vms.size();i++)
+		{
+			String rid=resource+String.valueOf(i);
+			qi.putValue(rid, vms.get(i-1).getId());
+		}
+		
+		
+		/* fill the default values */
+		qi.putValue("Tag.1.Key", cloud.getTagKey());
+		qi.putValue("Tag.1.Value", cloud.getTagValue());
+		qi.putValue("SignatureVersion", cloud.getSignatureVersion());
+		qi.putValue("SignatureMethod", cloud.getSignatureMethod());
+        qi.putValue("Timestamp", timestamp);
+        qi.putValue("Version", cloud.getVersion());
+        
+		String query = null;
+		try {
+			query = makeGETQuery(cloud, qi);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
+        executeQuery(Command.CREATE_TAG, cloud.getEndPoint(), query);
+    }
 	@Override
 	public ArrayList<Vm> listVMs() {
 		// TODO Auto-generated method stub
@@ -177,7 +216,8 @@ public class Ec2 implements CloudInterface{
 		/* fill the default values */
         qi.putValue("Timestamp", timestamp);
 		qi.putValue("Version", cloud.getVersion());
-
+        qi.putValue("Filter.1.Name", "tag:User");
+        qi.putValue("Filter.1.Value.1", "vcluster");
 		qi.putValue("SignatureVersion", cloud.getSignatureVersion());
 		qi.putValue("SignatureMethod", cloud.getSignatureMethod());
 
@@ -195,7 +235,10 @@ public class Ec2 implements CloudInterface{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	return executeQuery(Command.DESCRIBE_INSTANCE,cloud.getEndPoint(), query);
+		return executeQuery(Command.DESCRIBE_INSTANCE,cloud.getEndPoint(), query);
+    	//ArrayList<Vm> vmlist = executeQuery(Command.DESCRIBE_INSTANCE,cloud.getEndPoint(), query);
+    	//createTag(vmlist);
+    	//return vmlist;
 		//return new ArrayList<Vm> ();
 	}
 

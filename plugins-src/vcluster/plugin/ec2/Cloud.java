@@ -3,7 +3,9 @@ package vcluster.plugin.ec2;
 import java.util.List;
 import java.util.StringTokenizer;
 /**
- *A class represents a cloud, the instance of this this class involves the information that register to a ec2 interface. 
+ *A class represents a cloud, the instance of this this class involves the information that register to a ec2 interface.
+ *
+ * Hao: Add three properties to the EC2 cloud: TagKey, TagValue, SecurityGroup so that VM instances can be tagged. 
  */
 public class Cloud {
 	
@@ -17,6 +19,10 @@ public class Cloud {
 		keyName = null;
 		instanceType = null;
 		imageName = null;
+		tagKey=null;
+		tagValue=null;
+		securityGroup=null;
+	
 	}
 	/**
 	 *Create a instance by a configuration list. 
@@ -58,6 +64,12 @@ public class Cloud {
 				setSignatureVersion(aValue);
 			else if (aKey.equalsIgnoreCase("signaturemethod"))
 				setSignatureMethod(aValue);
+			else if (aKey.equalsIgnoreCase("tagKey"))
+				setTagKey(aValue);
+			else if (aKey.equalsIgnoreCase("tagValue"))
+				setTagValue(aValue);
+			else if (aKey.equalsIgnoreCase("securityGroup"))
+				setSecurityGroup(aValue);
 		}
 		
 	}
@@ -183,6 +195,32 @@ public class Cloud {
 		return signatureMethod;
 	}
 	
+	public String getTagKey(){
+		return tagKey;
+	}
+	
+	protected void setTagKey(String key){
+		tagKey=key;
+	}
+	
+	public String getTagValue(){
+		return tagValue;
+	}
+	
+	protected void setTagValue(String value){
+		tagValue=value;
+	}
+	
+	public String getSecurityGroup(){
+		return securityGroup;
+	}
+	
+	protected void setSecurityGroup(String value){
+		securityGroup=value;
+	}
+	
+
+
 	public String stringCloudType() {
 		
 		switch(cloudType) {
@@ -208,6 +246,7 @@ public class Cloud {
 		System.out.printf("\tversion:\t%s\n", version);
 		System.out.printf("\tsignature version:\t%s\n", signatureVersion);
 		System.out.printf("\tsignature method:\t%s\n", signatureMethod);
+	
 		
 	}
 
@@ -226,5 +265,9 @@ public class Cloud {
 	private String version;
 	private String signatureVersion;
 	private String signatureMethod;
-
+	
+	private String tagKey;
+	private String tagValue;
+	private String securityGroup;
+   
 }

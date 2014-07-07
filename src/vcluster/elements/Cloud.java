@@ -208,8 +208,10 @@ public class Cloud{
 			vm.setCloudName(getCloudName());
 			vmList.put(vm.getId(), vm);			
 		}
-		
-		BatchExecutor.mapingActivityToVm();
+		/*
+		 * Why need to mapping the activity at the time load the cloud?
+		 */
+		//BatchExecutor.mapingActivityToVm();
 		return true;
 	}
 		
