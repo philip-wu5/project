@@ -39,10 +39,10 @@ public class Host {
 	//host status
 	private HostStat stat;
 	
-	//host current cpu utilization
+	//host current cpu utilization, [0,100]
 	private double cpuUtil;
 	
-	//host current io utilization
+	//host current io utilization,[0,100]
 	private double ioUtil;
 	
 	//enumeration of the host states

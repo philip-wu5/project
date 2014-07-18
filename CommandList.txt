@@ -13,6 +13,7 @@
 -------------------------------------------------------------------------------------------
 	cloudman register [CONF_FILE]
 	cloudman dump // List all registerd clouds
+        cloudman listhost //List all hosts 
 	cloudman 
 -------------------------------------------------------------------------------------------
 	vmman list [options] [NAME]

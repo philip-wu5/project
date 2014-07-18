@@ -101,7 +101,65 @@ public class FermiCloud implements CloudInterface {
 	        return feedBack;
 	}
 	
-	
+	private ArrayList<String> socketToproxy(String cmd, String address){
+		String cmdLine=cmd;
+		ArrayList<String> feedBack = new ArrayList<String>();
+		 Socket socket = null;
+	        BufferedReader in = null;
+	        DataOutputStream out = null;
+	        //System.out.println(cmdLine);
+	        try {
+	        	socket = new Socket(address, port);
+	        	
+	            in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
+	            out = new DataOutputStream(socket.getOutputStream());
+	            out.flush();
+	            /* make an integer to unsigned int */
+	            int userInput = 5;
+	            userInput <<= 8;
+	            userInput |=  1;
+	            userInput &= 0x7FFFFFFF;
+
+	            String s = Integer.toString(userInput);
+	            byte[] b = s.getBytes();
+	            
+	            out.write(b, 0, b.length);
+	            out.write(cmdLine.getBytes(), 0, cmdLine.getBytes().length);
+	            out.flush();
+	            
+	            String str=null;
+	        	while((str=in.readLine())!=null)
+	        	{
+	        		str=str.trim();
+	        		feedBack.add(str);
+	        	}
+	            /*char[] cbuf = new char[4096];
+	        	String temp = null;
+	        	while (in.read(cbuf, 0, 4096) != -1) {
+	            	String str = new String(cbuf);
+	    	        str = str.trim();	    	        
+	    	        if (!str.equals(temp)){
+	    	        	//System.out.println(str);
+	    	        	 feedBack.add(str);
+	    	        }
+	    	        
+	    	        //cbuf[0] = '\0';
+	            	temp = str;
+	            }*/
+	            
+	        } catch (UnknownHostException e) {
+	    		System.out.print("ERROR: " +e.getMessage());
+	            closeStream(in, out, socket);
+	            return feedBack;
+	        } catch (IOException e) {
+	    		System.out.print("ERROR: " +e.getMessage());
+	            closeStream(in, out, socket);
+	            return feedBack;
+	        }
+	        
+	        closeStream(in, out, socket);
+	        return feedBack;
+	}
 	@Override
 	public boolean RegisterCloud(List<String> configurations) {
 		// TODO Auto-generated method stub
@@ -425,7 +483,7 @@ public class FermiCloud implements CloudInterface {
 	 */
     @Override
 	public ArrayList<Host> listHost() {
-		
+		//ArrayList<Host> tempHosts=getHosts();
 		return getHosts();
 	}
     
@@ -518,7 +576,7 @@ public class FermiCloud implements CloudInterface {
 			        tempHost.setMaxVmNum(tempHost.getTCPU()/100);
 			        hosts.add(tempHost);
 		}
-
+        getHostsRealTimeInfo(hosts);
 		return hosts;
 	}
     
@@ -535,5 +593,31 @@ public class FermiCloud implements CloudInterface {
     	}
     }
     
+    public void getHostCpuUtil(Host h){
+    	String cmd="sar 1 1|tail -1";
+    	ArrayList<String> arr=socketToproxy(cmd,h.getName());
+    	String[] subStr=arr.get(0).split("\\s+");
+    	h.setCPUUtil(100-Double.parseDouble(subStr[7]));
+    }
 
+    public void getHostIoUtil(Host h){
+    	String cmd="iostat -xk 1 1|tail -2";
+    	ArrayList<String> arr=socketToproxy(cmd,h.getName());
+    	String[] subStr=arr.get(0).split("\\s+");
+    	h.setIOUtil(Double.parseDouble(subStr[11]));
+    }
+    
+    public void getHostsRealTimeInfo(ArrayList<Host> hlist){
+    	for(Host h:hlist){
+    		if(h.getStat()==Host.HostStat.ON){
+    			try{
+    			getHostCpuUtil(h);
+    			getHostIoUtil(h);
+    			}
+    			catch(Exception e){
+    				e.printStackTrace();
+    			}
+    		}
+    	}
+    }
 }

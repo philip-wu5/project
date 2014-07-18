@@ -194,9 +194,11 @@ public class CloudmanExecutor {
 		String tAmem = String.format("%-12s", "AMEM");
 		String tFmem = String.format("%-12s", "FMEM");
 		String tVms = String.format("%-4s", "VMs");
-		String tRunVms=String.format("%-4s", "RunVMs");
+		String tRunVms=String.format("%-8s", "RunVMs");
+		String tCpuU = String.format("%-8s", "CPU_U");
+		String tIoU = String.format("%-8s", "IO_U");
 		str.append("-------------------------------------------------------------------------------------------------"+System.getProperty("line.separator"));
-		str.append(tId+tName+tStat+tTcpu+tAcpu+tFcpu+tTmem+tAmem+tFmem+tVms+tRunVms+System.getProperty("line.separator"));
+		str.append(tId+tName+tStat+tTcpu+tAcpu+tFcpu+tTmem+tAmem+tFmem+tVms+tRunVms+tCpuU+tIoU+System.getProperty("line.separator"));
 		str.append("-------------------------------------------------------------------------------------------------"+System.getProperty("line.separator"));
 		for (Cloud c : CloudManager.getCloudList().values()){
 			if (!c.isLoaded())
@@ -213,8 +215,10 @@ public class CloudmanExecutor {
 				String hAmem = String.format("%-12s",Integer.toString((int)h.getAMEM()));
 				String hFmem = String.format("%-12s",Integer.toString((int)h.getFMEM()));
 				String hVms = String.format("%-4s", Integer.toString(h.getVmList().size()));
-				String hRunVms = String.format("%-4s", Integer.toString(h.getCurrVmNum()));
-				str.append(hId+hName+hStat+hTcpu+hAcpu+hFcpu+hTmem+hAmem+hFmem+hVms+hRunVms+System.getProperty("line.separator"));
+				String hRunVms = String.format("%-8s", Integer.toString(h.getCurrVmNum()));
+				String hCpuU = String.format("%-8s", String.format("%3.2f", h.getCPUUtil())+"%");
+				String hIoU = String.format("%-8s", String.format("%3.2f",h.getIOUtil())+"%");
+				str.append(hId+hName+hStat+hTcpu+hAcpu+hFcpu+hTmem+hAmem+hFmem+hVms+hRunVms+hCpuU+hIoU+System.getProperty("line.separator"));
 			}
 		}
 		str.append("--------------------------------------------------------------------------------------------------"+System.getProperty("line.separator"));

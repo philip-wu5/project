@@ -26,10 +26,10 @@ public enum Command {
 	LISTCLOUD(CMD_GROUP.CLOUDMAN,"list,ls"),
 	LOADCLOUD(CMD_GROUP.CLOUDMAN,"load,ld"),
 	UNLOADCLOUD(CMD_GROUP.CLOUDMAN,"unload,unld"),
-	DUMP(CMD_GROUP.CLOUDMAN,"show,dump,hostlist"),
+	DUMP(CMD_GROUP.CLOUDMAN,"show,dump"),
 	HOSTON(CMD_GROUP.CLOUDMAN,"hoston"),
 	HOSTOFF(CMD_GROUP.CLOUDMAN,"hostoff"),
-	LISTHOST(CMD_GROUP.CLOUDMAN,"listhost"),
+	LISTHOST(CMD_GROUP.CLOUDMAN,"listhost,hostlist"),
 	SHOWHOST(CMD_GROUP.CLOUDMAN,"showhost"),
 	
 	
