@@ -154,28 +154,78 @@ public class CloudmanExecutor {
 			return str.append("[ERROR : ] Expect a Cloud name!").toString();
 		}
 		Cloud c = CloudManager.getCloudList().get(cmd.getParaset().get(0));
-		if(c.getHostList()==null||c.getHostList().size()==0)return "";
+		c.dump();
 		String tId=  String.format("%-8s","ID");
-		String tName=  String.format("%-12s", "Name");
+		String tName=  String.format("%-20s", "Name");
 		String tMax = String.format("%-6s", "Max");
 		String tStat =  String.format("%-6s","stat");
 		String tip = String.format("%-20s","Private IP");
 		str.append("-------------------------------------------------------"+System.getProperty("line.separator"));
 		str.append(tId+tName+tMax+tStat+tip+System.getProperty("line.separator"));
 		str.append("-------------------------------------------------------"+System.getProperty("line.separator"));
+		if(!(c.getHostList()==null||c.getHostList().size()==0)){
 		for(vcluster.elements.Host h : c.getHostList().values()){
 			String id = String.format("%-8s", h.getId());
-			String name = String.format("%-12s",h.getName());
+			String name = String.format("%-20s",h.getName());
 			String max = String.format("%-6s",h.getMaxVmNum()+"");
-			String stat = String.format("%-6s","ON");
+			String stat = String.format("%-6s",h.getStat().toString());
 			String ip = String.format("%-20s", h.getIpmiID());
 			if(h.getPowerStat()==0)
 			stat = String.format("%-6s","OFF");
 			str.append(id+name+max+stat+ip+System.getProperty("line.separator"));
 		}
+		}
 		str.append("-------------------------------------------------------"+System.getProperty("line.separator"));
 		if(cmd.getUi()==uiType.CMDLINE)System.out.println(str);
 		return str.toString();
+	}
+
+
+	public static String hostlist(CmdComb cmd) {
+		// TODO Auto-generated method stub
+		StringBuffer str=new StringBuffer();
+		String tId=  String.format("%-8s","ID");
+		String tName=  String.format("%-20s", "Name");
+		String tStat =  String.format("%-6s","stat");
+		String tTcpu = String.format("%-8s","TCPU");
+		String tAcpu = String.format("%-8s", "ACPU");
+		String tFcpu = String.format("%-8s", "FCPU");
+		String tTmem = String.format("%-12s","TMEM");
+		String tAmem = String.format("%-12s", "AMEM");
+		String tFmem = String.format("%-12s", "FMEM");
+		String tVms = String.format("%-4s", "VMs");
+		String tRunVms=String.format("%-4s", "RunVMs");
+		str.append("-------------------------------------------------------------------------------------------------"+System.getProperty("line.separator"));
+		str.append(tId+tName+tStat+tTcpu+tAcpu+tFcpu+tTmem+tAmem+tFmem+tVms+tRunVms+System.getProperty("line.separator"));
+		str.append("-------------------------------------------------------------------------------------------------"+System.getProperty("line.separator"));
+		for (Cloud c : CloudManager.getCloudList().values()){
+			if (!c.isLoaded())
+				c.load();
+			for(vcluster.elements.Host h: c.getHostList().values())
+			{
+				String hId=  String.format("%-8s", h.getId());
+				String hName= String.format("%-20s", h.getName());
+				String hStat = String.format("%-6s", h.getStat().toString());
+				String hTcpu = String.format("%-8s",Integer.toString(h.getTCPU()));
+				String hAcpu = String.format("%-8s",Integer.toString(h.getACPU()));
+				String hFcpu = String.format("%-8s",Integer.toString(h.getFCPU()));
+				String hTmem = String.format("%-12s",Integer.toString((int)h.getTMEM()));
+				String hAmem = String.format("%-12s",Integer.toString((int)h.getAMEM()));
+				String hFmem = String.format("%-12s",Integer.toString((int)h.getFMEM()));
+				String hVms = String.format("%-4s", Integer.toString(h.getVmList().size()));
+				String hRunVms = String.format("%-4s", Integer.toString(h.getCurrVmNum()));
+				str.append(hId+hName+hStat+hTcpu+hAcpu+hFcpu+hTmem+hAmem+hFmem+hVms+hRunVms+System.getProperty("line.separator"));
+			}
+		}
+		str.append("--------------------------------------------------------------------------------------------------"+System.getProperty("line.separator"));
+		if(cmd.getUi()==uiType.CMDLINE)System.out.println(str);
+		return str.toString();
+	}
+
+
+	public static String showhost(CmdComb cmd) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

@@ -8,6 +8,7 @@ import vcluster.elements.PoolStatus;
 import vcluster.elements.QStatus;
 import vcluster.elements.Slot;
 import vcluster.elements.Vm;
+import vcluster.elements.Job;
 import vcluster.managers.CloudManager;
 import vcluster.managers.PluginManager;
 /**
@@ -37,11 +38,19 @@ public class BatchExecutor {
 							if(s.getIdentifier().equalsIgnoreCase(vm.getId())&&vm.getCloudName().equalsIgnoreCase(s.getDomain())){
 								vm.setIsIdle(s.getActivity());
 							}
-						}
+						}else if(s.getIdType()==Slot.IdType.VMHOSTNAME){
+							
+						}else
+							;						
 					}
 				}
 			}				
 		}		
+	}
+	
+	public static void mappingJobsToVm()
+	{
+		ArrayList<Job> jobs=getQStatus().getJobs();
 	}
 	
 	public static boolean ConnectTo(File conf){

@@ -20,6 +20,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
+import vcluster.elements.Host;
 import vcluster.elements.Vm;
 import vcluster.plugInterfaces.CloudInterface;
 import vcluster.util.Util;
@@ -216,8 +217,8 @@ public class Ec2 implements CloudInterface{
 		/* fill the default values */
         qi.putValue("Timestamp", timestamp);
 		qi.putValue("Version", cloud.getVersion());
-        qi.putValue("Filter.1.Name", "tag:User");
-        qi.putValue("Filter.1.Value.1", "vcluster");
+        qi.putValue("Filter.1.Name", "tag:"+cloud.getTagKey());
+        qi.putValue("Filter.1.Value.1", cloud.getTagValue());
 		qi.putValue("SignatureVersion", cloud.getSignatureVersion());
 		qi.putValue("SignatureMethod", cloud.getSignatureMethod());
 
@@ -337,6 +338,24 @@ public class Ec2 implements CloudInterface{
 	public boolean migrate(String vmid, String hostid) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+
+
+
+	@Override
+	public ArrayList<Vm> createVM(int maxCount, String hostID) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+
+	@Override
+	public ArrayList<Host> listHost() {
+		// TODO Auto-generated method stub
+		return null;
 	}	
 	
 }

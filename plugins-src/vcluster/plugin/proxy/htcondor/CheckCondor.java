@@ -451,6 +451,7 @@ public class CheckCondor {
 		try {
 			FileWriter fw = new FileWriter(f);
 			for(String line : arr){
+				line=line.trim();
 				fw.write(line);
 				fw.flush();
 			}

@@ -1,4 +1,7 @@
 package vcluster.elements;
+
+import java.util.ArrayList;
+
 /**
  * A class representing the job queue status of the batch system.
  *
@@ -134,6 +137,27 @@ public class QStatus {
 	/**
 	 *This is a function the output the job queue status,for command line console,print the result on the screeen. 
 	 */
+	
+	public ArrayList<Job> getJobs(){
+		return jobs;
+	}
+	public void setJobs(ArrayList<Job> j){
+		jobs=j;
+	}
+	
+	public boolean setJobHost(String jID, String hostName)
+	{
+		for(int i=0;i<jobs.size();i++)
+		{
+			if(jobs.get(i).getID().equalsIgnoreCase(jID))
+			{
+				jobs.get(i).setHost(hostName);
+				return true;
+			}
+	}
+		return false;
+	}
+	
 	public String printQStatus()
 	{
 		StringBuffer str = new StringBuffer();
@@ -154,7 +178,36 @@ public class QStatus {
 		return str.toString();
 	}
 	
-	
+	public String printJobs()
+	{
+		StringBuffer flag=new StringBuffer();
+		String cID = String.format("%-7s", "ID");
+		String cOwner =String.format("%-12s", "OWENER");
+		String cSubmit = String.format("%-16s", "SUBMITTED");
+		String cRunTime = String.format("%-12s", "RUN_TIME");
+		String cStatus = String.format("%-7s", "STATUS");
+		String cHost = String.format("%-20s", "HOST");
+		flag.append("-------------------------------------------------------"+System.getProperty("line.separator"));
+		flag.append(cID+cOwner+cSubmit+cRunTime+cStatus+cHost+System.getProperty("line.separator"));
+		flag.append("-------------------------------------------------------"+System.getProperty("line.separator"));
+		for(int i = 0;i<jobs.size();i++){
+			try {
+				String tID = String.format("%-7s", jobs.get(i).getID());
+				String tOwner =String.format("%-12s", jobs.get(i).getOwner());
+				String tSubmit = String.format("%-16s", jobs.get(i).getSubmit());
+				String tRunTime = String.format("%-12s", jobs.get(i).getRunT());
+				String tStatus = String.format("%-7s", jobs.get(i).getStat());
+				String tHost = String.format("%-20s", jobs.get(i).getHost());
+				flag.append(tID+tOwner+tSubmit+tRunTime+tStatus+tHost+System.getProperty("line.separator"));
+			} catch (NullPointerException e) {
+				// TODO Auto-generated catch block	
+				//e.printStackTrace();
+				flag.append("Jobs doesn't exist!"+System.getProperty("line.separator"));
+			}
+		}
+		flag.append("-------------------------------------------------------"+System.getProperty("line.separator"));
+		return flag.toString();
+	}
 	private int totalJob = 0;
 	private int completedJob = 0;
 	private int removedJob = 0;
@@ -162,5 +215,6 @@ public class QStatus {
 	private int runningJob = 0;
 	private int heldJob = 0;
 	private int suspendedJob = 0;
+	private ArrayList<Job> jobs;
 	
 }

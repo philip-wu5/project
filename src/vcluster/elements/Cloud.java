@@ -10,8 +10,10 @@ import vcluster.executors.PlugmanExecutor;
 import vcluster.managers.CloudManager;
 import vcluster.managers.PluginManager;
 import vcluster.managers.VmManager;
+import vcluster.managers.VmManager.VMState;
 import vcluster.plugInterfaces.CloudInterface;
 import vcluster.ui.CmdComb;
+import vcluster.elements.Host;
 
 
 /**
@@ -74,6 +76,11 @@ public class Cloud{
 					//System.out.println(host.getId()+ i + "");
 					hostList.put(hostname,host);
 				}
+				
+			}else if (aKey.equalsIgnoreCase("imagesize")){
+				setImageSize(Integer.parseInt(aValue));
+			}else if (aKey.equalsIgnoreCase("cluster")){
+				setCluster(aValue);
 			}
 		}
 		isLoaded = false;
@@ -93,6 +100,8 @@ public class Cloud{
 		if(!PluginManager.isLoaded(cloudpluginName))PlugmanExecutor.load(new CmdComb("plugman load -c "+cloudpluginName));		
 		cp = (CloudInterface)PluginManager.pluginList.get(cloudpluginName).getInstance();
 		this.listVMs();
+		this.listHost();
+		matchVMtoHost();
 		if(getVmList()==null)return null;
 		for(Vm vm : getVmList().values()){
 			Integer id = new Integer(VmManager.getcurrId());
@@ -104,8 +113,9 @@ public class Cloud{
 		String fName = String.format("%-12s", getCloudName());
 		String fInterface =String.format("%-20s", getCloudpluginName());
 		String fType = String.format("%-12s", getCloudType());
-		String fVMs = String.format("%-16s", vmList.size());
-		str.append(fName+fInterface+fType+fVMs);
+		String fVMs = String.format("%-8s", vmList.size());
+		String fHosts = String.format("%-8s", hostList.size());
+		str.append(fName+fInterface+fType+fVMs+fHosts);
 		//HandleXML.setCloudAttribute(cloudName,"isLoaded", "true");
 		//System.out.println(str);
 		return str.toString();
@@ -380,11 +390,26 @@ public class Cloud{
 		this.isLoaded = isLoaded;
 	}
 
+	public boolean listHost(){
+		hostList=new TreeMap<String,Host>();
+		if (this.cloudType==Cloud.CloudType.PRIVATE)
+		{
+			cp.RegisterCloud(conf);
+			ArrayList<Host> hlist=cp.listHost();
+			if(hlist!=null){
+				for (Host h:hlist)
+					hostList.put(h.getId(),h);
+			}
+			return true;
+		}
+		return false;
+	}
 	/**
 	 * Get the host list of the cloud
 	 * @return a TreeMap of host instance list, as key set is the host's id.
 	 */
 	public TreeMap<String, Host> getHostList() {
+		
 		return hostList;
 	}
 	
@@ -469,8 +494,22 @@ public class Cloud{
 		return true;
 	}
 	
+	public int getImageSize()
+	{return imageSize;}
+	
+	public void setImageSize(int size)
+	{imageSize=size;}
+	
+	public String getCluster(){
+		return cluster;
+	}
+	
+	public void setCluster(String cName){
+		cluster=cName;
+	}
+	
 	/**
-	 * 
+	 *  Need to override this function, all the VMs should match using dnsnames
 	 */
 	public String slotNameToVMId(String slotName){
 		String vmId="";
@@ -518,5 +557,50 @@ public class Cloud{
 	private boolean isLoaded;
 	private TreeMap<String,Host> hostList;
 	private int priority;
+
+	/*
+	 * Added functions by Hao
+	 */
+	/*
+	 * The size of image, this attribute is temp here. Maybe future in VM class
+	 */
+	private int imageSize;
+	/*
+	 * cluster name of the cloud host machine
+	 */
+	private String cluster;
 	
+	/**
+	 * To match short hostname and full dns hostnames
+	 */
+	public boolean hostNameMatch(String n1, String n2){
+	    	String [] sn1=n1.split("\\.");
+	    	String [] sn2=n2.split("\\.");
+	    	return (n1.equals(n2)||sn1[0].equals(sn2[0]));
+	}
+	
+	/**
+	 * Add virtual machines to its host
+	 */
+	public boolean matchVMtoHost(){
+		if(vmList.isEmpty()||hostList.isEmpty())
+			return false;
+		for (Vm v:vmList.values())
+		{
+			String str=null;
+			if((str=v.getHostname())!=null)
+			{
+				for(Host h:hostList.values())
+				{
+					if(hostNameMatch(str,h.getName())){
+						h.getVmList().put(v.getId(), v);
+						if (v.getState()==VMState.RUNNING)
+							h.setCurrVmNum(h.getCurrVmNum()+1);
+						break;
+					}
+				}
+			}
+		}
+		return true;
+	}
 }

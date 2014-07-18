@@ -30,4 +30,11 @@ public class ProxyHTCondor implements BatchInterface{
 		return new CheckCondor().getQ();
 	}
 
+
+	@Override
+	public boolean deregisterWorker(String dnsname) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

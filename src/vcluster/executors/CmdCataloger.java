@@ -56,6 +56,10 @@ public class CmdCataloger {
 			return CloudmanExecutor.hostoff(cmd);	
 		case DUMP:
 			return CloudmanExecutor.dump(cmd);
+		case LISTHOST:
+			return CloudmanExecutor.hostlist(cmd);
+		case SHOWHOST:
+			return CloudmanExecutor.showhost(cmd);
 		default:
 			return CloudmanExecutor.undefined(cmd);					
 		}		
@@ -98,7 +102,10 @@ public class CmdCataloger {
 			return pstat.printPoolStatus();
 		case CHECK_Q: 			
 	    	QStatus qstat =  PluginManager.current_proxyExecutor.getQStatus();
-	    	if(cmd.getUi().equals(uiType.CMDLINE))System.out.println(qstat.printQStatus());
+	    	if(cmd.getUi().equals(uiType.CMDLINE)){
+	    		System.out.println(qstat.printQStatus());
+	    		System.out.println(qstat.printJobs());
+	    	}
 	    	return qstat.printQStatus();
 		default:
 			break;		

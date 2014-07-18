@@ -28,4 +28,7 @@ public interface BatchInterface{
 	 */
 	public QStatus getQStatus();
 
+	public boolean deregisterWorker(String dnsname);
+	
+	
 }

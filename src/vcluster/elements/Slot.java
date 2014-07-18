@@ -8,8 +8,18 @@ public class Slot {
 	private String identifier;
 	private IdType idType;
 	private int activity;
+	private String hostname;
 	
-
+    /*
+     * Set and get the hostname of the slots.
+     */
+	public String gethostName(){
+		return hostname;
+	}
+	
+	public void setHostName(String hn){
+		hostname=hn;
+	}
 	/**
 	 *Get the domain of the slot, identify where(or which cloud) is the slot from. 
 	 * @return the domain of the slot.
@@ -77,8 +87,8 @@ public class Slot {
 	 *Set the activity status of a slot
 	 *@param activity, only can be one of the number "0, 1, 3" .
 	 */
-	public void setActivity(int activity) {
-		this.activity = activity;
+	public void setActivity(int act) {
+		this.activity = act;
 	}
 	
 	/**
@@ -86,5 +96,5 @@ public class Slot {
 	 *Five types is defined, which are "PRIVATEIP, PUBLICIP, VMID, VMHOSTNAME,NOTDEFINED ".
 	 */
 	public static enum IdType {PRIVATEIP, PUBLICIP, VMID, VMHOSTNAME,NOTDEFINED };
-		
+	public static enum Activity {IDLE,BUSY, NOTDETERMINED};	
 }

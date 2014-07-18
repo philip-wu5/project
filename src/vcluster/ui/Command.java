@@ -29,6 +29,9 @@ public enum Command {
 	DUMP(CMD_GROUP.CLOUDMAN,"show,dump,hostlist"),
 	HOSTON(CMD_GROUP.CLOUDMAN,"hoston"),
 	HOSTOFF(CMD_GROUP.CLOUDMAN,"hostoff"),
+	LISTHOST(CMD_GROUP.CLOUDMAN,"listhost"),
+	SHOWHOST(CMD_GROUP.CLOUDMAN,"showhost"),
+	
 	
 	/*Commands of vmman Category*/
 	SHOW(CMD_GROUP.VMMAN,"show,sh"),

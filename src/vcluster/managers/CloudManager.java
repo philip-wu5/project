@@ -195,20 +195,21 @@ public class CloudManager  {
 		String cName = String.format("%-12s", "Name");
 		String cInterface =String.format("%-20s", "Interface");
 		String cType = String.format("%-12s", "Type");
-		String cVMs = String.format("%-16s", "VMs");
-		flag.append("-------------------------------------------------------"+System.getProperty("line.separator"));
-		flag.append(cName+cInterface+cType+cVMs+System.getProperty("line.separator"));
-		flag.append("-------------------------------------------------------"+System.getProperty("line.separator"));
+		String cVMs = String.format("%-8s", "VMs");
+		String cHosts = String.format("%-8s", "Hosts");
+		flag.append("---------------------------------------------------------------"+System.getProperty("line.separator"));
+		flag.append(cName+cInterface+cType+cVMs+cHosts+System.getProperty("line.separator"));
+		flag.append("---------------------------------------------------------------"+System.getProperty("line.separator"));
 		for(int i = 0;i<name.length;i++){
 			try {
 				flag.append(cloudList.get(name[i].trim()).load()+System.getProperty("line.separator"));
 			} catch (NullPointerException e) {
 				// TODO Auto-generated catch block	
-				//e.printStackTrace();
+				e.printStackTrace();
 				flag.append(name[i]+" doesn't exist!"+System.getProperty("line.separator"));
 			}
 		}
-		flag.append("-------------------------------------------------------"+System.getProperty("line.separator"));
+		flag.append("---------------------------------------------------------------"+System.getProperty("line.separator"));
 		return flag.toString();
 	}
 

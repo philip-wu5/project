@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import vcluster.elements.Vm;
-
+import vcluster.elements.Host;
 /**
  *An interface for cloud plug-in, all the cloud plugins implement this interface. 
  */
@@ -19,6 +19,13 @@ public interface CloudInterface  {
 	 *@param maxCount, the number of virtual machines that's suppose to be created. 
 	 */
 	public ArrayList<Vm> createVM(int maxCount);
+	
+	/**
+	 * Create given number of virtual machine on given host
+	 * @param maxCount, the number of virtual machines that to be launched
+	 * @param hostID, the id of the host
+	 */
+	public ArrayList<Vm> createVM(int maxCount, String hostID);
 	/**
 	 *Get the list of virtual machines. 
 	 *@return ArrayList<Vm>, an array list of virtual machine instances . 
@@ -57,5 +64,9 @@ public interface CloudInterface  {
 	 */
 	public boolean migrate(String vmid,String hostid);
 	
+	/**
+	 * List host machine information
+	 */
+	public ArrayList<Host> listHost();
 	
 }

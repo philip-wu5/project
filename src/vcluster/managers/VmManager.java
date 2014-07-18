@@ -204,14 +204,15 @@ public class VmManager extends Thread {
 		String tName = String.format("%-10s", "CLOUD");
 		String tHost = String.format("%-10s", "Host");
 		String tID =String.format("%-5s", "ID");
-		String tStat = String.format("%-10s", "STATUS");
+		String tStat = String.format("%-12s", "STATUS");
 		String tPrivateIp =  String.format("%-18s", "PrivateIP");
 		String tPublicIp =  String.format("%-18s", "PublicIP");
 		String tActivity =  String.format("%-10s", "Activity");
 		String tInternalID =  String.format("%-12s", "IntnlID");
+		String tDNSName = String.format("%-25s", "VMName");
 		String line =  "------------------------------------------------------------------------------------------------";
 		str.append(line+System.getProperty("line.separator"));
-		str.append(tID+tInternalID+tStat+tActivity+tPrivateIp+tPublicIp+tHost+tName+System.getProperty("line.separator"));
+		str.append(tID+tInternalID+tStat+tActivity+tPrivateIp+tPublicIp+tHost+tName+tDNSName+System.getProperty("line.separator"));
 		str.append(line+System.getProperty("line.separator"));
 			int runNum = 0;
 			int totalNum = 0;
@@ -222,7 +223,7 @@ public class VmManager extends Thread {
 				if(!cloudFilter.equals("")&&vmList.get(id).getCloudName().equals(cloudFilter)){
 					String fName = String.format("%-10s", vmList.get(id).getCloudName());
 					String fID =String.format("%-5s", id);
-					String fStat = String.format("%-10s", vmList.get(id).getState());
+					String fStat = String.format("%-12s", vmList.get(id).getState());
 					String fPrivateIp =  String.format("%-18s", vm.getPrivateIP());
 					String fPublicIp =  String.format("%-18s", vm.getPubicIP());
 					String fActivity =  String.format("%-10s", acti);
@@ -237,7 +238,7 @@ public class VmManager extends Thread {
 				if(!filter.equals("")&&vmList.get(id).getState().toString().equals(filter)){
 					String fName = String.format("%-10s", vmList.get(id).getCloudName());
 					String fID =String.format("%-5s", id);
-					String fStat = String.format("%-10s", vmList.get(id).getState());
+					String fStat = String.format("%-12s", vmList.get(id).getState());
 					String fPrivateIp =  String.format("%-18s", vm.getPrivateIP());
 					String fPublicIp =  String.format("%-18s", vm.getPubicIP());
 					String fActivity =  String.format("%-10s", acti);
@@ -251,7 +252,7 @@ public class VmManager extends Thread {
 				if(filter.equals("")&cloudFilter.equals("")){
 					String fName = String.format("%-10s", vmList.get(id).getCloudName());
 					String fID =String.format("%-5s", id);
-					String fStat = String.format("%-10s", vmList.get(id).getState());
+					String fStat = String.format("%-12s", vmList.get(id).getState());
 					String fPrivateIp =  String.format("%-18s", vm.getPrivateIP());
 					String fPublicIp =  String.format("%-18s", vm.getPubicIP());
 					String fActivity =  String.format("%-10s", acti);
@@ -322,6 +323,7 @@ public class VmManager extends Thread {
 		String tinID = String.format("%-11s", "internalID");
 		String tlauTime = String.format("%-11s", "launchTime");
 		String activity = String.format("%-11s", "Activity");
+		String tDNSName = String.format("%-11s", "VmName");
 		Integer id = vID;
 		
 		String fName = String.format("%-16s", vmList.get(id).getCloudName());
@@ -332,11 +334,13 @@ public class VmManager extends Thread {
 		String finID = String.format("%-16s", vmList.get(id).getId());
 		String flauTime = String.format("%-16s", vmList.get(id).getTime());
 		String factivity = String.format("%-16s", vmList.get(id).isIdle());
+		String fDNSName = String.format("%-25s", vmList.get(id).getDNSName());
 		
 		str.append("---------------------------------------"+System.getProperty("line.separator"));
 		str.append(tID+" : "+fID+System.getProperty("line.separator"));
 		str.append(tName+" : "+fName+System.getProperty("line.separator"));
 		str.append(tinID+" : "+finID+System.getProperty("line.separator"));
+		str.append(tDNSName+" : "+fDNSName+System.getProperty("line.separator"));
 		str.append(tStat+" : "+fStat+System.getProperty("line.separator"));
 		str.append(tpriIP+" : "+fpriIP+System.getProperty("line.separator"));
 		str.append(tpubIP+" : "+fpubIP+System.getProperty("line.separator"));	

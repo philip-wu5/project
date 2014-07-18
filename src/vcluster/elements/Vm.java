@@ -1,6 +1,9 @@
 package vcluster.elements;
 
+import java.util.ArrayList;
+
 import vcluster.managers.VmManager.VMState;
+import vcluster.elements.Job;
 /**
  * A class representing a virtual machine 
  */
@@ -18,7 +21,9 @@ public class Vm {
 	private String privateIP;
 	private String pubicIP;
 	private int isIdle;
-	
+	private ArrayList<Job> jobs;
+
+	private String dnsname;
 	/**
 	 *Constructor, initialize an instance of virtual machine as the default members' value. 
 	 */
@@ -36,6 +41,7 @@ public class Vm {
 		this.privateIP="";
 		this.pubicIP="";
 		this.isIdle = 3;
+		this.dnsname="";
 	}
 	
 	/**
@@ -263,7 +269,42 @@ public class Vm {
 	public void setIsIdle(int isIdle) {
 		this.isIdle = isIdle;
 	}
+    
+	/*
+	 * Get the VM's DNS name
+	 */
+	public String getDNSName(){
+		return dnsname;
+	}
+	
+	/*
+	 * Set the VM's DNS name
+	 */
+	
+	public void setDNSName(String name){
+		dnsname=name;
+	}
+	
+	/*
+	 * Get the image size of the VM
+	 */
 
+	/*
+	 * Get the jobs running on the VM
+	 */
+	
+	public ArrayList<Job> getJobs(){
+		return jobs;
+	}
+	
+	/*
+	 * Set the jobs on the VM
+	 */
+	
+	public void setJobs(ArrayList<Job> j)
+	{
+		jobs=j;
+	}
 	
 	/**
 	 *	Return virtual machine's status as String form.

@@ -139,11 +139,13 @@ public class Host {
 		this.name = name;
 	}
 	
+
 	/**
 	 * Get the virtual machines' list that running on this host.
 	 * @return A TreeMap of the instances of virtual machines. as the key set is vitual machine's id. 
 	 */
 	public TreeMap<String, Vm> getVmList() {
+		if ( CloudManager.getCloudList().get(cloudName).getCloudType()==Cloud.CloudType.PUBLIC){
 		vmList = new TreeMap<String,Vm> ();
 		for(Vm vm : CloudManager.getCloudList().get(cloudName).getVmList().values()){
 			if(vm.getHostname().equalsIgnoreCase(id)){
@@ -153,6 +155,10 @@ public class Host {
 		} 
 		currVmNum = vmList.size();
 		return vmList;
+		}
+		else {
+			return vmList;
+		}
 	}
 	
 	/**

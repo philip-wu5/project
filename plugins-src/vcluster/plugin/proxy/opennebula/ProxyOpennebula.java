@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import vcluster.elements.Host;
 import vcluster.elements.Vm;
 import vcluster.managers.VmManager.VMState;
 import vcluster.plugInterfaces.CloudInterface;
@@ -208,6 +209,14 @@ public class ProxyOpennebula implements CloudInterface {
 		}
 			return vmList;
 	}
+	
+	@Override
+	public ArrayList<Vm> createVM(int maxCount, String hostID)
+	{
+		ArrayList<Vm> vmList = new ArrayList<Vm>();
+		
+		return vmList;
+	}
 	private boolean getVminf(Vm vm){
 		ArrayList<String> feedBack = socketToproxy("onevm show "+vm.getId()+" | grep IP");
 
@@ -394,6 +403,12 @@ public class ProxyOpennebula implements CloudInterface {
 	private int port;
 	private String template;
 	private String ipmiParas;
+	@Override
+	public ArrayList<Host> listHost() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 
 
 }
