@@ -27,13 +27,14 @@ Update 7-28-2014
 Update 7-18-2014
 
 Add Functions
+
 1. Enable list host infomation from private cloud
 2. Enable getting real time infomation for hosts (CPU Utilization, IO Utilization)
 3. Match VMs to Hosts, counting running VMs. (Readings from OpenNebula are not accurate)
 4. When load hosts, filters used to select hosts from given cluster
 5. Enable list condor jobs in details (Owner, Start time, Status, Slot, etc.)
 6. EC2 feature: 
-               a. Lable worker nodes when instantiate VM on EC2
-               b. Describe only vCluster worker nodes
-               c. "listhost, hostlist" commands only show hosts informations
+   a. Lable worker nodes when instantiate VM on EC2
+   b. Describe only vCluster worker nodes
+   c. "listhost, hostlist" commands only show hosts informations
 
