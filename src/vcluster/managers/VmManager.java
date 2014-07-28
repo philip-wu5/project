@@ -229,10 +229,11 @@ public class VmManager extends Thread {
 					String fActivity =  String.format("%-10s", acti);
 					String fInternalID =  String.format("%-12s", vm.getId());
 					String fHost = String.format("%-10s", vm.getHostname());
+					String fDnsName = String.format("%-20s", vm.getDNSName());
 					
 					
 					if(vmList.get(id).getState().equals(VMState.RUNNING))runNum++;
-					str.append(fID+fInternalID+fStat+fActivity+fPrivateIp+fPublicIp+fHost+fName+System.getProperty("line.separator"));
+					str.append(fID+fInternalID+fStat+fActivity+fPrivateIp+fPublicIp+fHost+fName+fDnsName+System.getProperty("line.separator"));
 					totalNum++;
 				}
 				if(!filter.equals("")&&vmList.get(id).getState().toString().equals(filter)){
@@ -244,9 +245,9 @@ public class VmManager extends Thread {
 					String fActivity =  String.format("%-10s", acti);
 					String fInternalID =  String.format("%-12s", vm.getId());
 					String fHost = String.format("%-10s", vm.getHostname());
-					
+					String fDnsName = String.format("%-20s", vm.getDNSName());
 					if(vmList.get(id).getState().equals(VMState.RUNNING))runNum++;
-					str.append(fID+fInternalID+fStat+fActivity+fPrivateIp+fPublicIp+fHost+fName+System.getProperty("line.separator"));
+					str.append(fID+fInternalID+fStat+fActivity+fPrivateIp+fPublicIp+fHost+fName+fDnsName+System.getProperty("line.separator"));
 					totalNum++;
 				}
 				if(filter.equals("")&cloudFilter.equals("")){
@@ -258,9 +259,9 @@ public class VmManager extends Thread {
 					String fActivity =  String.format("%-10s", acti);
 					String fInternalID =  String.format("%-12s", vm.getId());
 					String fHost = String.format("%-10s", vm.getHostname());
-					
+					String fDnsName = String.format("%-20s", vm.getDNSName());
 					if(vmList.get(id).getState().equals(VMState.RUNNING))runNum++;
-					str.append(fID+fInternalID+fStat+fActivity+fPrivateIp+fPublicIp+fHost+fName+System.getProperty("line.separator"));
+					str.append(fID+fInternalID+fStat+fActivity+fPrivateIp+fPublicIp+fHost+fName+fDnsName+System.getProperty("line.separator"));
 					totalNum++;
 				}
 			}

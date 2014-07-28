@@ -105,7 +105,7 @@ public class ResponseDataHandler {
 				vm.setId(instanceId);
 				if(instanceState.equalsIgnoreCase("running")){
 					vm.setState(VMState.RUNNING);
-				}else if(instanceState.equalsIgnoreCase("stoped")){
+				}else if(instanceState.equalsIgnoreCase("stopped")){
 					vm.setState(VMState.STOP);
 				}else if(instanceState.equalsIgnoreCase("Pending")){
 					vm.setState(VMState.PENDING);
@@ -151,7 +151,7 @@ public class ResponseDataHandler {
 		String privateIP = "";
 		String publicIP = "";
 		String lunTime ="";
-		
+		String dnsName="";
 		
 		for(int i = 0 ; i < instNodeList.getLength();i++) {
 			
@@ -184,11 +184,15 @@ public class ResponseDataHandler {
 				if (instanceState == null || instanceState.equals("")) 
 					continue;
 				
+				dnsName = getTextValue(anItem,"dnsName");
+				if (dnsName == null || dnsName.equals("")) 
+					continue;
 				vm.setId(instanceId);
 				vm.setPrivateIP(privateIP);
 				vm.setPubicIP(publicIP);
 				vm.setTime(lunTime);
 				vm.setHostname("host1");
+				vm.setDNSName(dnsName);
 				if(instanceState.equalsIgnoreCase("running")){
 					vm.setState(VMState.RUNNING);
 				}else if(instanceState.equalsIgnoreCase("stopped")){

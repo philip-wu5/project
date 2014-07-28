@@ -165,7 +165,11 @@ public class PlugmanExecutor {
 	
 	public static String undefined(CmdComb cmd){
 		StringBuffer str = new StringBuffer();
-		str.append( "no such a parameter like \""+cmd.getParaset().get(0)+"\" !"+System.getProperty("line.separator"));
+		if(cmd.getParaset().isEmpty())
+			str.append("need a parameter!"+System.getProperty("line.separator"));
+		else{
+			str.append( "no such a parameter like \""+cmd.getParaset().get(0)+"\" !"+System.getProperty("line.separator"));
+		}
 		str.append(getUsage()+System.getProperty("line.separator"));
 		if(cmd.getUi()==uiType.CMDLINE)System.out.println(str);
 		return str.toString();

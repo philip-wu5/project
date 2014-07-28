@@ -87,7 +87,7 @@ public class CheckCondor {
 		ArrayList<String> status = socketToproxy("condor_q");
 		for(String str : status){
 	        try {
-	        	if(str.contains("Submitter")||str.contains("OWNER"))
+	        	if(str.contains("Submitter")||str.contains("OWNER")||str.equals(""))
 	        		continue;
     	        if (str.contains("jobs")) {
     	        	extractQInfo(str);
@@ -105,7 +105,7 @@ public class CheckCondor {
 		ArrayList<String> status = socketToproxy("condor_q -run");
 		for(String str : status){
 	        try {
-	        	if(str.contains("Submitter")||str.contains("OWNER"))
+	        	if(str.contains("Submitter")||str.contains("OWNER")||str.equals(""))
 	        		continue;
     	        extractJobHost(str);
 			} catch (Exception e) {
