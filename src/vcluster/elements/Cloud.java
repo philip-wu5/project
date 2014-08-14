@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
+import vcluster.Vcluster;
 import vcluster.executors.BatchExecutor;
 import vcluster.executors.PlugmanExecutor;
 import vcluster.managers.CloudManager;
@@ -164,7 +165,7 @@ public class Cloud{
 	public String createVM(int maxCount,String hostName) {
 		// TODO Auto-generated method stub
 		StringBuffer str = new StringBuffer();
-		if(!hostName.equalsIgnoreCase("host1")){
+		/*if(!hostName.equalsIgnoreCase("host1")){
 			int i = 100;
 			for(int j =0;j<conf.size();j++){
 				if(conf.get(j).contains("template")){
@@ -172,8 +173,8 @@ public class Cloud{
 					break;
 				}
 			}
-			if(i!=100)conf.set(i, "template = templates/"+hostName+".one");
-		}
+			//if(i!=100)conf.set(i, "template = templates/"+hostName+".one");
+		}*/
 		cp.RegisterCloud(conf);
 		ArrayList<Vm> vmlist = cp.createVM(maxCount);
 		if(vmlist==null || vmlist.isEmpty()){
@@ -187,7 +188,34 @@ public class Cloud{
 			Integer uId = VmManager.getcurrId();
 			vm.setuId(uId);
 			VmManager.getVmList().put(uId, vm);
-			str.append(cloudName+"   "+vm.getId()+"   "+vm.getState()+System.getProperty("line.separator"));
+			str.append(cloudName+"   "+vm.getId()+"   "+vm.getDNSName()+System.getProperty("line.separator"));
+		}
+		if(maxCount==1){
+			str.append(maxCount + " virture machine has been created successfully"+System.getProperty("line.separator"));
+		}else{
+			str.append(maxCount +" virture machines have been created successfully"+System.getProperty("line.separator"));
+		}
+		//System.out.println(str);
+		Vcluster.writeSysLogFile(str.toString());
+		return str.toString();
+	}
+
+	public String createVMonHost(int maxCount, String hostID){
+		StringBuffer str = new StringBuffer();
+		cp.RegisterCloud(conf);
+		ArrayList<Vm> vmlist = cp.createVM(maxCount,hostID);
+		if(vmlist==null || vmlist.isEmpty()){
+			str.append("Operation failed!");
+			return str.toString();
+		}
+		for(Vm vm : vmlist){
+			vm.setCloudName(cloudName);
+			//vm.setHostname(hostName);
+			this.vmList.put(vm.getId(), vm);
+			Integer uId = VmManager.getcurrId();
+			vm.setuId(uId);
+			VmManager.getVmList().put(uId, vm);
+			str.append(cloudName+"   "+vm.getId()+"   "+vm.getDNSName()+System.getProperty("line.separator"));
 		}
 		if(maxCount==1){
 			str.append(maxCount + " virture machine has been created successfully"+System.getProperty("line.separator"));
@@ -197,7 +225,6 @@ public class Cloud{
 		//System.out.println(str);
 		return str.toString();
 	}
-
 	/**
 	 *List up the virtual machine that is running on the cloud.
 	 * 
@@ -573,7 +600,7 @@ public class Cloud{
 	/**
 	 * To match short hostname and full dns hostnames
 	 */
-	public boolean hostNameMatch(String n1, String n2){
+	public static boolean hostNameMatch(String n1, String n2){
 	    	String [] sn1=n1.split("\\.");
 	    	String [] sn2=n2.split("\\.");
 	    	return (n1.equals(n2)||sn1[0].equals(sn2[0]));

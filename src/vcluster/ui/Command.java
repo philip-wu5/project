@@ -17,7 +17,8 @@ public enum Command {
 	CHECK_P (CMD_GROUP.VCLMAN, "chkp,check_p"),
 	CHECK_Q (CMD_GROUP.VCLMAN, "chkq,check_q"),
 	SERVER_MODE(CMD_GROUP.VCLMAN,"servermode"),
-	LOADBALANCERSTART(CMD_GROUP.VCLMAN,"loadbalancer"),
+	LOADBALANCERSTART(CMD_GROUP.VCLMAN,"loadbalancer, lb"),
+	AUTOSERVER(CMD_GROUP.VCLMAN,"auto"),
 	
 	
 	

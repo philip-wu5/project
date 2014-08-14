@@ -107,6 +107,23 @@ public class CmdCataloger {
 	    		System.out.println(qstat.printJobs());
 	    	}
 	    	return qstat.printQStatus();
+		case LOADBALANCERSTART:
+			if(PluginManager.current_loadbalancer!=null)
+				PluginManager.current_loadbalancer.activate();
+			else{
+				System.out.println("[Error] : No Load Balancer availble!");
+			}
+		case AUTOSERVER:
+			CmdComb cmdLine=new CmdComb("cloudman register fermi-proxy.conf");
+			cmdLine.setUi(uiType.CMDLINE);
+			CloudmanExecutor.register(cmdLine);
+			//cmdLine=new CmdComb("cloudman register amazon.conf");
+			//cmdLine.setUi(uiType.CMDLINE);
+			//CloudmanExecutor.register(cmdLine);
+			cmdLine=new CmdComb("plugman load -l fermibalancer");
+			cmdLine.setUi(uiType.CMDLINE);
+			PlugmanExecutor.load(cmdLine);
+			PluginManager.current_loadbalancer.activate();
 		default:
 			break;		
 			

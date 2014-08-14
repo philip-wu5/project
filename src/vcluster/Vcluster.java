@@ -1,7 +1,14 @@
 package vcluster;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.Writer;
+import java.util.Date;
+
+
 /**
  *This class initiate the parameters of vcluster. 
  */
@@ -16,11 +23,16 @@ public class Vcluster {
 	public static enum uiType {CMDLINE, REMOTECLIENT, WEBUI, LOADBALANCER};	
 	public static uiType currUI;
 	public static String xmlFile;
+	public static boolean terminate;
+	public static final String logFile="log"+File.separator+"Balancer_Log";
+    public static final String VmLaunchLogFile="log"+File.separator+"VmLaunch_Log";
+    public static final String sysLogFile="log"+File.separator+"Sys_Log";
 	
 	/**
 	 * When vcluser start this function will be involked, the parameters will be read from a configuration file.
 	 */
 	public static void init(){	
+		terminate=false;
 		BufferedReader br ;
 		try{
 			br = new BufferedReader(new FileReader(configFile));
@@ -48,4 +60,42 @@ public class Vcluster {
 		}
 	}
 	
+	public static void writeLogFile(String line){
+		try{
+    		Writer output;
+    		output = new BufferedWriter(new FileWriter(Vcluster.logFile,true));
+    		Date d=new Date(System.currentTimeMillis());
+    		String str="["+d.toString()+"] "+ line+System.lineSeparator();
+    		output.append(str);
+    		output.close();
+    	}catch(Exception e){
+    			e.getStackTrace();
+    	}
+	}
+	
+	public static void writeLaunchLogFile(String line){
+		try{
+    		Writer output;
+    		output = new BufferedWriter(new FileWriter(Vcluster.VmLaunchLogFile,true));
+    		Date d=new Date(System.currentTimeMillis());
+    		String str="["+d.toString()+"] "+ line+System.lineSeparator();
+    		output.append(str);
+    		output.close();
+    	}catch(Exception e){
+    			e.getStackTrace();
+    	}
+	}
+	
+	public static void writeSysLogFile(String line){
+		try{
+    		Writer output;
+    		output = new BufferedWriter(new FileWriter(Vcluster.sysLogFile,true));
+    		Date d=new Date(System.currentTimeMillis());
+    		String str="["+d.toString()+"] "+ line+System.lineSeparator();
+    		output.append(str);
+    		output.close();
+    	}catch(Exception e){
+    			e.getStackTrace();
+    	}
+	}
 }

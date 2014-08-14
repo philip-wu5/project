@@ -21,6 +21,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import vcluster.Vcluster;
 import vcluster.elements.Host;
 import vcluster.elements.Slot;
 import vcluster.elements.Vm;
@@ -42,7 +43,7 @@ public class FermiCloud implements CloudInterface {
 	}
 	
 	private ArrayList<String> socketToproxy(String cmd){
-		String cmdLine=cmd;
+		String cmdLine=cmd+"\n";
 		ArrayList<String> feedBack = new ArrayList<String>();
 		 Socket socket = null;
 	        BufferedReader in = null;
@@ -102,7 +103,7 @@ public class FermiCloud implements CloudInterface {
 	}
 	
 	private ArrayList<String> socketToproxy(String cmd, String address){
-		String cmdLine=cmd;
+		String cmdLine=cmd+"\n";
 		ArrayList<String> feedBack = new ArrayList<String>();
 		 Socket socket = null;
 	        BufferedReader in = null;
@@ -148,11 +149,15 @@ public class FermiCloud implements CloudInterface {
 	            }*/
 	            
 	        } catch (UnknownHostException e) {
-	    		System.out.print("ERROR: " +e.getMessage());
+	        	String msg="ERROR: " +address+" "+e.getMessage();
+	    		System.out.print(msg);
+	    		Vcluster.writeSysLogFile(msg);
 	            closeStream(in, out, socket);
 	            return feedBack;
 	        } catch (IOException e) {
-	    		System.out.print("ERROR: " +e.getMessage());
+	        	String msg="ERROR: " +address+" "+e.getMessage();
+	    		System.out.print(msg);
+	    		Vcluster.writeSysLogFile(msg);
 	            closeStream(in, out, socket);
 	            return feedBack;
 	        }
@@ -234,12 +239,13 @@ public class FermiCloud implements CloudInterface {
 		ArrayList<String> feedBack = socketToproxy(cmdLine);
 		if(feedBack!=null&&!feedBack.isEmpty()&&feedBack.get(0).contains("ID:")){
 			for(int i = 0;i<feedBack.size();i++){
-				
+				if(!feedBack.get(i).contains("ID:"))
+					continue;
 				String [] vmEle = feedBack.get(i).split("\\s+");
 				Vm vm = new Vm();
-				vm.setId(vmEle[1]);
+				vm.setId(vmEle[2]);
 				vm.setState(VMState.PROLOG);
-				vm.setDNSName(getVmNames(vmEle[1]));
+				vm.setDNSName(getVmNames(vmEle[2]));
 				vmList.add(vm);				
 			}
 		}else{
@@ -258,22 +264,24 @@ public class FermiCloud implements CloudInterface {
 		ArrayList<String> feedBack = socketToproxy(cmdLine);
 		if(feedBack!=null&&!feedBack.isEmpty()&&feedBack.get(0).contains("ID:")){
 			for(int i = 0;i<feedBack.size();i++){
-				
+				if(!feedBack.get(i).contains("ID:"))
+					continue;
 				String [] vmEle = feedBack.get(i).split("\\s+");
 				Vm vm = new Vm();
-				vm.setId(vmEle[1]);
+				vm.setId(vmEle[2]);
 				vm.setState(VMState.PROLOG);
-				vm.setDNSName(getVmNames(vmEle[1]));
-				vm.setHostname(hostID);
-				vmList.add(vm);				
+				vm.setDNSName(getVmNames(vmEle[2]));
+                vmList.add(vm);				
 			}
-		}else{
-			System.out.println(feedBack.get(0));
+		}
+		if(vmList.isEmpty()){
+			System.out.println("[Error:] No vm has been created!!");
 			return null;
 		}
 		for(int j=0;j<vmList.size();j++)
 		{
 			cmdLine="onevm deploy "+ vmList.get(j).getId()+" "+ hostID;
+			System.out.println(cmdLine);
 			socketToproxy(cmdLine);
 		}
 			return vmList;
@@ -356,7 +364,9 @@ public class FermiCloud implements CloudInterface {
 				
 			}
 			flag = false;
-		}else if(feedBack.get(0).contains("ReadTimeout")){
+		}else if(feedBack==null||feedBack.isEmpty())
+			return null;
+		else if(feedBack.get(0).contains("ReadTimeout")){
 			try {
 				Thread.sleep(5000);
 			} catch (InterruptedException e) {
@@ -379,13 +389,15 @@ public class FermiCloud implements CloudInterface {
 	public ArrayList<Vm> destroyVM(Vm vm) {
 		// TODO Auto-generated method stub
 			
-		String cmdLine = "./rmvm "+vm.getPrivateIP()+" "+vm.getId();
+		String cmdLine = "/cloud/login/hwu28/scripts/deletevm "+vm.getId();
+		System.out.println(cmdLine);
 		ArrayList<Vm> vmList = new ArrayList<Vm>();
 		ArrayList<String> feedBack = socketToproxy(cmdLine);
 		if(feedBack!=null&&!feedBack.isEmpty()){
 			System.out.println(feedBack.get(0));
 			return null;
 		}
+		
 		Vm vm_1 = new Vm();
 		vm_1.setId(vm.getId());
 		vm_1.setState(VMState.STOP);

@@ -17,7 +17,7 @@ public class CmdComb {
 		this.cmdLine = cmdLine;
 		paraSet = new ArrayList<String>();
 		cmdLineParser(cmdLine);
-
+        ui=uiType.CMDLINE;
 		
 	}
 

@@ -67,7 +67,7 @@ public class UIMain {
 	    command.setUi(uiType.CMDLINE);
 	    /* if quit, then forcedly quit */
 	    if (command.getCmd() == Command.QUIT) {
-	    	
+	    	vcluster.Vcluster.terminate=true;
 	    	/* forcedly exit */
 	    	System.exit(0);
 	    }
@@ -87,6 +87,33 @@ public class UIMain {
 	    
 	}
 
+	private static boolean startCmdLine(String cmd){
+		String userCmd = cmd;
+
+	   
+	    /* extract the command from the command string */
+	    CmdComb command = new CmdComb(userCmd);
+	    command.setUi(uiType.CMDLINE);
+	    /* if quit, then forcedly quit */
+	    if (command.getCmd() == Command.QUIT) {
+	    	vcluster.Vcluster.terminate=true;
+	    	/* forcedly exit */
+	    	System.exit(0);
+	    }
+	    
+	    /*
+	     * if command is not defined, no more action
+	     */
+	    if (command.getCmd() == Command.NOT_DEFINED) {
+	    	System.out.println("command is not supported!");
+	    	return true;
+	    }
+	    
+	    /* execution here */
+	    CmdCataloger.execute(command);
+
+	    return true;
+	}
 	
 	/**
 	 *This is the main function, loops the promptGen function, keep staying at the "vcluster " prompt line, wait for inputing the command. 
@@ -95,10 +122,20 @@ public class UIMain {
 	public static void main(String[] args) throws Exception {
 		UIMain uimain = new UIMain();
 
-		boolean more = false;
-		do {
-			more = uimain.promptGen();
-		}while (more == true);
+		
+		
+		if(args.length>=1){
+			startCmdLine(args[0]);
+			
+		}else{
+			boolean more = false;
+			do {
+				more = uimain.promptGen();
+			}while (more == true);
+		}
 	}
+
+
+	
 
 }

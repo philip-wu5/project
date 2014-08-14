@@ -582,7 +582,7 @@ StringTokenizer st = new StringTokenizer(str, ";, ");
 	}
 	
 	private ArrayList<String> socketToproxy(String cmd){
-		String cmdLine=cmd;
+		String cmdLine=cmd+"\n";
 		ArrayList<String> feedBack = new ArrayList<String>();
 			Socket socket = null;
 	        BufferedReader in = null;

@@ -10,6 +10,9 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import vcluster.plugin.balancer.fermibalancer.VM.VmStat;
 
 
 public class Host {
@@ -18,14 +21,15 @@ public class Host {
 	private int port;
 	private int memorySize;
 	private int cpuCount;
-	private ArrayList<VM> vmList;
+	private CopyOnWriteArrayList<VM> vmList;
+	private static final String localImageLocation="/var/lib/one/local/test";
 	public static final String configFile="host.conf";
 	public static final int MAX_TIME_FRAME = 3600;
 	
 	/*
 	 * sysCpuU and sysIOU map system time (long format) and its corresponding utilization
 	 */
-    private ArrayList<SystemStat>  sysStat;
+    private CopyOnWriteArrayList<SystemStat>  sysStat;
         
     /*
      * System properties for the overhead model
@@ -41,6 +45,9 @@ public class Host {
     private double a;
     private double b;
     private double c;
+    
+    private int trainRound;
+    private boolean trained;
     
     public String getCloudName(){
     	return cloudName;
@@ -83,17 +90,17 @@ public class Host {
 		cpuCount=value;
 	}
 	
-    public ArrayList<VM> getVmList(){
+    public CopyOnWriteArrayList<VM> getVmList(){
     	return vmList;
     }
-    public void setVmList(ArrayList<VM> value){
+    public void setVmList(CopyOnWriteArrayList<VM> value){
     	vmList=value;
     }
     
-    public ArrayList<SystemStat> getSysStat(){
+    public CopyOnWriteArrayList<SystemStat> getSysStat(){
     	return sysStat;
     }
-    public void setSysStat(ArrayList<SystemStat> value){
+    public void setSysStat(CopyOnWriteArrayList<SystemStat> value){
     	sysStat=value;
     }
     
@@ -163,8 +170,15 @@ public class Host {
 	}
 	/**
      * Constructor, need id, server address and port number. Initialize the utilization sets(CPU and IO)
-     */
-    public Host(String cloudName, String _id, String _addr, int _port, int memSize, int cpuCount){
+   	 * @param cloudName 
+	 * @param _id 
+	 * @param _addr 
+	 * @param _port
+	 * @param memSize
+	 * @param cpuCount
+	 * 
+	 */
+    public Host(String cloudName, String _id, String _addr, int _port, int memSize, int cpuCount) {
     	this.cloudName=cloudName;id=_id; addr=_addr; port=_port;memorySize=memSize;this.cpuCount=cpuCount;
     	readBandwidth=0;
     	writeBandwidth=0;
@@ -176,25 +190,38 @@ public class Host {
     	a=0;
     	b=0;
     	c=0;
-    	sysStat=new ArrayList<SystemStat>();
-    	vmList=new ArrayList<VM>();
+    	trainRound=0;
+    	sysStat=new CopyOnWriteArrayList<SystemStat>();
+    	vmList=new CopyOnWriteArrayList<VM>();
     	if(!readConfigFile()){
-    		benchmarking();
-    		defaultParameters();
+    		if(!benchmarking())
+    		{
+    			String msg="[MSG: ]Trying to bench mark onemore time!";
+    			System.out.println(msg);
+    			FermiBalancer.writeLogFile(msg);
+    			benchmarking();
+    		}
+    		if(!readDefualtConfigFile())
+    			defaultParameters();
     	}
     	if(!checkParameters())
     	{
-    		System.out.println("Reading Host Config failure: Missing parameters!");
-    		System.exit(1);
+    		
+    		String line="[Error:] Reading Host Config failure: Missing parameters!\n";
+    		System.out.println(line);
+    		FermiBalancer.writeLogFile(line);
+   			System.exit(1);
     	}
+    	if(trainRound<FermiBalancer.MAX_CONVERGE_ROUND)
+    		trained=false;
+    	else
+    		trained=true;
+    	writeConfigFile();
     }
     public boolean readConfigFile(){
     	String file="hosts"+File.separator+id;
     	File f=new File(file);
-    	if(!f.exists()){
-    		f=new File(Host.configFile);
-    		file=configFile;
-    	}
+    	
      	if(!f.exists())
     		return false;
     	
@@ -225,6 +252,8 @@ public class Host {
 					b = Double.parseDouble(pair[1].trim());
 				} else if(pair[0].trim().equalsIgnoreCase("c")){
 					c = Double.parseDouble(pair[1].trim());
+				} else if(pair[0].trim().equalsIgnoreCase("TRAIN")){
+					trainRound=Integer.parseInt(pair[1].trim());
 				}
 			}
 			
@@ -232,6 +261,56 @@ public class Host {
 			
 		}catch(Exception e){
 			System.out.println(e.getMessage());	
+			FermiBalancer.writeLogFile(e.getMessage());
+			return false;		
+		}
+    	return true;
+    }
+    
+    public boolean readDefualtConfigFile(){
+    	String file=Host.configFile;
+    	File f=new File(file);
+    	if(!f.exists())
+    		return false;
+    	
+    	BufferedReader br ;
+		try{
+			br = new BufferedReader(new FileReader(file));
+			String aLine = "";
+			while ((aLine = br.readLine()) != null) {
+				if(aLine.contains("#")||!aLine.contains("="))continue;
+				String[] pair = aLine.split("=");
+				if (pair[0].trim().equalsIgnoreCase("ReadBandwidth")) {
+					if(readBandwidth==0)
+						readBandwidth = Integer.parseInt(pair[1].trim());				
+				}else if(pair[0].trim().equalsIgnoreCase("WriteBandwidth")){
+					if(writeBandwidth==0)
+						writeBandwidth = Integer.parseInt(pair[1].trim());
+				}else if(pair[0].trim().equalsIgnoreCase("CacheBandwidth")){
+					if(cacheBandwidth==0)
+						cacheBandwidth = Integer.parseInt(pair[1].trim());
+				}else if(pair[0].trim().equalsIgnoreCase("Epsilon")){
+					epsilon = Double.parseDouble(pair[1].trim());
+				}else if(pair[0].trim().equalsIgnoreCase("Gamma")){
+					gamma = Double.parseDouble(pair[1].trim());
+				} else if(pair[0].trim().equalsIgnoreCase("Beta")){
+					beta = Double.parseDouble(pair[1].trim());
+				}else if(pair[0].trim().equalsIgnoreCase("BootMin")){
+					bootMin = Double.parseDouble(pair[1].trim());
+				} else if(pair[0].trim().equalsIgnoreCase("a")){
+					a = Double.parseDouble(pair[1].trim());
+				}else if(pair[0].trim().equalsIgnoreCase("b")){
+					b = Double.parseDouble(pair[1].trim());
+				} else if(pair[0].trim().equalsIgnoreCase("c")){
+					c = Double.parseDouble(pair[1].trim());
+				}
+			}
+			
+			br.close();
+			
+		}catch(Exception e){
+			System.out.println(e.getMessage());	
+			FermiBalancer.writeLogFile(e.getMessage());
 			return false;		
 		}
     	return true;
@@ -239,32 +318,157 @@ public class Host {
     public boolean benchmarking(){
     	String s="Bench Marking Host: "+ this.addr;
     	System.out.println(s);
+    	FermiBalancer.writeLogFile(s);
     	writeBandwidth=benchMarkWriteBandwidth();
     	String out="Writing Bandwidth : " + Integer.toString(writeBandwidth)+"MB/s";
     	System.out.println(out);
+    	FermiBalancer.writeLogFile(out);
     	clearCache();
     	readBandwidth=benchMarkReadBandwidth();
     	out="Reading Bandwidth : " + Integer.toString(readBandwidth)+"MB/s";
     	System.out.println(out);
+    	FermiBalancer.writeLogFile(s);
     	cacheBandwidth=benchMarkReadBandwidth();
     	out="Caching Bandwidth : " + Integer.toString(cacheBandwidth)+"MB/s";
     	System.out.println(out);
+    	FermiBalancer.writeLogFile(s);
     	cleanBenchMarkFiles();
     	if(writeBandwidth!=0&&readBandwidth!=0&&cacheBandwidth!=0)
     	{
-    		System.out.println("Bench Marking successful!");
+    		String msg="Bench Marking successful!";
+    		System.out.println(msg);
+    		FermiBalancer.writeLogFile(msg);
     		return true;
     	}else{
-    		System.out.println("Bench Marking unsuccessful!!");
+    		String msg="Bench Marking unsuccessful!!";
+    		System.out.println(msg);
+    		FermiBalancer.writeLogFile(msg);
     		return false;
     	}
     }
     
     //TODO: Training function to train the parameters for the overhead model
-    public void trainning(){
+    public void trainning(boolean debug){
     	/*
     	 * updating epsilon, gamma, beta and bootmin
     	 */
+     	if(trainRound>FermiBalancer.MAX_CONVERGE_ROUND){
+    		if(!trained){
+    			writeConfigFile();
+    			trained=true;
+    		}
+    	}else {
+    		ArrayList<Double> actual=new ArrayList<Double>();
+    		ArrayList<Double> predict=new ArrayList<Double>();
+    		for(int i=0;i<vmList.size();i++){
+    			if(vmList.get(i).getBootTime()!=-1&&vmList.get(i).getRealBootTime()!=-1){
+    				actual.add((double)vmList.get(i).getRealBootTime());
+    				predict.add((double)vmList.get(i).getBootTime());
+    			}
+    		}
+    		double error=Evaluation.MASE(actual, predict);
+    		if(error<=FermiBalancer.CONVERGE_THRESHOLD){
+    			trainRound++;
+    		}else{
+    			boolean terminate=false;
+    			double granularity=getCurrentGranularity();
+    			double tmpEpsilon=granularity;
+    			long start=System.currentTimeMillis();
+    			long finish=start;
+    			while (error>FermiBalancer.CONVERGE_THRESHOLD||!terminate){
+    				if(granularity<=FermiBalancer.MIN_GRANULARITY){
+    					terminate=true;
+    					if(debug){
+    						finish=System.currentTimeMillis();
+       						System.out.println("[DEBUG:] Model Tranning Not converged but terminated. Using: "+
+    						Long.toString(finish-start)+" MS.");
+    					}
+    					break;
+    				}
+    				else{
+    					double minError=error;
+    					double minEpsilon=tmpEpsilon;
+    					double oriEpsilon=tmpEpsilon;
+    					for(int i=0;i<9;i++){
+    						double tmp=calPredictError(tmpEpsilon);
+    						if(tmp<=minError)
+    						{
+    							minError=tmp;
+    							minEpsilon=tmpEpsilon;
+    						}
+    						tmpEpsilon=tmpEpsilon+granularity;
+    					}
+    					tmpEpsilon=oriEpsilon;
+    					for(int i=0;i<9;i++){
+    						tmpEpsilon=tmpEpsilon-granularity;
+    						if(tmpEpsilon<=0)
+    							break;
+    						double tmp=calPredictError(tmpEpsilon);
+    						if(tmp<=minError)
+    						{
+    							minError=tmp;
+    							minEpsilon=tmpEpsilon;
+    						}
+     					}
+    					tmpEpsilon=minEpsilon;
+    					error=minError;
+    					granularity=granularity/10;
+    				}
+
+    			}
+    			finish=System.currentTimeMillis();
+    			if(!terminate&&debug){
+    				System.out.println("[DEBUG:] Model Tranning converged and terminated. Using: "+
+    						Long.toString(finish-start)+" MS.");
+    			}
+    			if(debug){
+    				System.out.println(dumpTrainData());
+    				System.out.println(Double.toString(tmpEpsilon));
+    			}
+    			this.epsilon=tmpEpsilon;
+    			trainRound++;
+    			writeConfigFile();
+    		}
+    	}
+    }
+    
+    private String dumpTrainData(){
+    	StringBuilder sb=new StringBuilder();
+    	String title="--"+this.getAddress()+":Training Data--"+System.lineSeparator();
+    	sb.append(title);
+    	String test=String.format("%-8s", "EST.");
+    	String treal=String.format("%-8s", "REAL");
+    	sb.append(test+treal+System.lineSeparator());
+    	for(int i=0;i<vmList.size();i++){
+    		test=String.format("%-8s",Integer.toString(vmList.get(i).getBootTime()));
+        	treal=String.format("%-8s", Integer.toString(vmList.get(i).getRealBootTime()));
+        	sb.append(test+treal+System.lineSeparator());
+    	}
+    	sb.append("-------------------------------------");
+    	return sb.toString();
+    }
+    public double calPredictError(double epsilon){
+    	ArrayList<Double> actual=new ArrayList<Double>();
+    	ArrayList<Double> predict=new ArrayList<Double>();
+    	for(int i=0;i<vmList.size();i++){
+    		if(vmList.get(i).getBootTime()!=-1&&vmList.get(i).getRealBootTime()!=-1)
+    		{
+    			vmList.get(i).getOverhead().setEpsilon(epsilon);
+    			actual.add((double)vmList.get(i).getRealBootTime());
+    			predict.add((double)vmList.get(i).getOverhead().bootTime());
+ 			
+    		}
+    	}
+    	return Evaluation.MASE(actual, predict);
+    }
+    
+    public double getCurrentGranularity(){
+    	double granularity=0.1;
+    	while((epsilon-granularity)<=0)
+    	{
+    		granularity=granularity/10;
+    	}
+    	return granularity*10;
     }
     
     private ArrayList<String> socketToproxy(String cmd){
@@ -304,6 +508,7 @@ public class Host {
 	            
 	        
 	        } catch (UnknownHostException e) {
+	        	
 	    		System.out.print("ERROR: " +e.getMessage());
 	            closeStream(in, out, socket);
 	            return feedBack;
@@ -329,7 +534,7 @@ public class Host {
 	}
     
     private int benchMarkWriteBandwidth(){
-    	String cmd="(dd bs=1M count=2000 if=/dev/zero of=./test conv=fdatasync)2>&1";
+    	String cmd="(dd bs=1M count=2000 if=/dev/zero of="+ localImageLocation +" conv=fdatasync)2>&1";
     	ArrayList<String> strArr=socketToproxy(cmd);
     	for(String s :strArr){
     		if (s.contains("copied"))
@@ -340,7 +545,7 @@ public class Host {
     }
     
     private int benchMarkReadBandwidth(){
-    	String cmd="(dd bs=1M count=2000 if=./test of=/dev/null)2>&1";
+    	String cmd="(dd bs=1M count=2000 if="+ localImageLocation +" of=/dev/null)2>&1";
     	ArrayList<String> strArr=socketToproxy(cmd);
     	for(String s :strArr){
     		if (s.contains("copied"))
@@ -395,6 +600,7 @@ public class Host {
 		sb.append("a = " + Double.toString(a)+System.lineSeparator());
 		sb.append("b = "+Double.toString(b)+System.lineSeparator());
 		sb.append("c = "+Double.toString(c)+System.lineSeparator());
+		sb.append("TRAIN = "+Integer.toString(trainRound)+System.lineSeparator());
 		return sb.toString();
 	}
 	
@@ -425,10 +631,15 @@ public class Host {
 		vmList.add(vm);
 	}
 	
+	/**
+	 * Only change the status of the vm to be off, keep the record of the vm
+	 * @param vmid
+	 */
 	public void deleteVM(String vmid){
 		for(int i=0;i<vmList.size();i++){
 			if(vmList.get(i).getId().equals(vmid)){
-				vmList.remove(i);
+				//vmList.remove(i);
+				vmList.get(i).setStatus(VmStat.DELETED);
 				System.out.printf("VM %s has been deleted from the host list!\n", vmid);
 				break;
 			}
@@ -436,8 +647,17 @@ public class Host {
 		System.out.printf("[ERROR : ]CANNOT find VM %s in the host list!\n ",vmid);
 	}
 	
+	public int runningVMs(){
+		int count=0;
+		for(int i=0;i<vmList.size();i++){
+			if(vmList.get(i).getStatus()!=VmStat.DELETED&&vmList.get(i).getStatus()!=VmStat.UNKNOWN)
+				count++;
+		}
+		return count;
+	}
+	
 	private void defaultParameters(){
-		this.epsilon = 0.004;
+		this.epsilon = 0.0045;
 		this.gamma = 0.03;
 		this.beta = 0.7;
 		this.bootMin = 0.02;
