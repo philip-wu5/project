@@ -4,6 +4,15 @@ project
 vcluster project
 
 Source code for the vcluster in FermiCloud
+
+Update 8-14-2014
+
+1. Overhead aware best fit algorithm --DONE
+2. VM release pattern -- need config file --DONE
+3. Model traning --DONE
+4. Readings from worker nodes --DONE
+5. Auto-launch based on model --DONE
+
 Update 7-28-2014
 
 1. BUG for empty plugman command -- fixed
